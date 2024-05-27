@@ -100,6 +100,9 @@ Column(modifier=Modifier.fillMaxSize(),
     fun editItem(item: ShoppingItem, index:Int){
         itemsList[index]= item
     }
+    fun deleteItem( index:Int){
+        itemsList.removeAt(index)
+    }
     ElevatedButton(  onClick = {
         selectedItemIndex=-1
         showDialog =true
@@ -132,8 +135,9 @@ Column(modifier=Modifier.fillMaxSize(),
         itemsIndexed(itemsList) {index, it->
                 Card(modifier = Modifier
                     .fillMaxWidth()
-                    .height(Dp(50F))
-                    .padding(horizontal = Dp(10F),),
+                    .height(Dp(70F))
+                    .padding(horizontal = 5.dp, vertical = 5.dp).padding(5
+                        .dp),
                     colors = CardDefaults.cardColors(containerColor = Color.LightGray),
                     border = BorderStroke(Dp(.3F), Color.Gray),
                     content = {
@@ -172,7 +176,8 @@ Column(modifier=Modifier.fillMaxSize(),
 
                                 }
 //                    Spacer(modifier = Modifier.width(Dp(10F),),)
-                                IconButton(onClick = { /* do something */ }) {
+                                IconButton(onClick = { deleteItem(index)
+                                }) {
 
                                     Icon(
                                         Icons.Outlined.Delete,
@@ -201,7 +206,7 @@ class ShoppingItem(val name:String, val quantity:Int){
 @Composable
 fun ShowItemDataDialog(setShowDialog: (Boolean)-> Unit, action:
 (ShoppingItem ) -> Unit, item: ShoppingItem? ){
-    val txtFieldError = remember { mutableStateOf("") }
+
     var name:String? by remember { mutableStateOf(item?.name) }
     var quantityString: String by remember { mutableStateOf(item?.quantity
         .toString()) }
@@ -217,7 +222,7 @@ fun ShowItemDataDialog(setShowDialog: (Boolean)-> Unit, action:
             contentAlignment = Alignment.Center
         ) {
             Column(modifier = Modifier.padding(20.dp)) {
-
+                var error:String by remember { mutableStateOf("") }
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -233,10 +238,15 @@ fun ShowItemDataDialog(setShowDialog: (Boolean)-> Unit, action:
                     )
 
                 }
-
                 Spacer(modifier = Modifier.height(20.dp))
-
-
+                if(error.isNotEmpty()) Text(
+                    text = error,
+                    style = TextStyle(
+                        fontFamily = FontFamily.Default,
+                        color = Color.Red
+                    )
+                )
+                Spacer(modifier = Modifier.height(10.dp))
                 TextField(
                     value = name?:"",
                     onValueChange = { name = it },
@@ -262,7 +272,7 @@ fun ShowItemDataDialog(setShowDialog: (Boolean)-> Unit, action:
                         onClick = {
                             if ( name.isNullOrEmpty() ||
                                 quantityString.toIntOrNull() == null) {
-                                txtFieldError.value = "Field can not be empty"
+                                error= "Make sure to enter valid values"
 
                             }
                 else{
