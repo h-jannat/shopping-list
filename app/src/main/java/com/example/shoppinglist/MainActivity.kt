@@ -5,9 +5,6 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,14 +16,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Edit
-import androidx.compose.material3.ButtonElevation
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedButton
@@ -38,19 +33,15 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -61,11 +52,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import androidx.compose.ui.window.Popup
-import androidx.compose.ui.window.PopupProperties
-import androidx.compose.ui.zIndex
 import com.example.shoppinglist.ui.theme.ShoppingListTheme
-import org.intellij.lang.annotations.JdkConstants.HorizontalAlignment
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -77,70 +64,42 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    ShoppingListApp("Android")
+                    ShoppingListApp()
                 }
             }
         }
     }
 }
 
-
-
-
 @SuppressLint("UnrememberedMutableState")
 @Composable
-fun ShoppingListApp(name: String, modifier: Modifier = Modifier) {
+fun ShoppingListApp() {
 
-    var showDialog by remember {
-        mutableStateOf(
-           false
-        )
-    }
-//    var selectedItem: ShoppingItem? by  remember{
-//        mutableStateOf(
-//            null
-//        )
-//    }
     var selectedItemIndex: Int by  remember{
         mutableStateOf(
             -1
         )
     }
-    var itemsList =
+    val itemsList =
         mutableStateListOf<ShoppingItem>(
         )
-
-   fun createItem(item: ShoppingItem){
-       itemsList.add(item)
-       println("is show dia $showDialog")
-   }
-
-    fun editItem(item: ShoppingItem, index:Int){
-        itemsList[index]= item
-    }
-
-  if(showDialog){
-
-        ShowItemDataDialog(setShowDialog = {
-            showDialog = false
-        }, action = {
-            if (selectedItemIndex == -1) {
-                //create
-                createItem(it)
-
-            } else {
-                editItem(it, selectedItemIndex)
-            }
-        }, item = if(selectedItemIndex==-1) null else
-                itemsList[selectedItemIndex])
-
-
-   }
-
 
 Column(modifier=Modifier.fillMaxSize(),
     verticalArrangement = Arrangement.Center,
     horizontalAlignment = Alignment.CenterHorizontally,) {
+    var showDialog by remember {
+        mutableStateOf(
+            false
+        )
+    }
+    fun createItem(item: ShoppingItem){
+    itemsList.add(item)
+    println("is show dia $showDialog")
+}
+
+    fun editItem(item: ShoppingItem, index:Int){
+        itemsList[index]= item
+    }
     ElevatedButton(  onClick = {
         selectedItemIndex=-1
         showDialog =true
@@ -151,6 +110,21 @@ Column(modifier=Modifier.fillMaxSize(),
             .height(Dp(50F),)
             .width
                 (Dp(200F),),){
+
+        if(showDialog){
+            ShowItemDataDialog(setShowDialog = {
+                showDialog = false
+            }, action = {
+                if (selectedItemIndex == -1) {
+                    //create
+                    createItem(it)
+
+                } else {
+                    editItem(it, selectedItemIndex)
+                }
+            }, item = if(selectedItemIndex==-1) null else
+                itemsList[selectedItemIndex])
+        }
         Text(text = "Add Item")
     }
     Spacer(modifier = Modifier.height(Dp(10F)))
@@ -287,14 +261,14 @@ fun ShowItemDataDialog(setShowDialog: (Boolean)-> Unit, action:
                     ElevatedButton(
                         onClick = {
                             if ( name.isNullOrEmpty() ||
-                                quantityString.toIntOrNull() != null) {
+                                quantityString.toIntOrNull() == null) {
                                 txtFieldError.value = "Field can not be empty"
 
                             }
                 else{
 
                 action(ShoppingItem(name!!, quantityString.toInt()))
-                                setShowDialog(false)
+                               setShowDialog(false)
                 }
                         },
                         shape = RoundedCornerShape(50.dp),
@@ -317,6 +291,6 @@ fun ShowItemDataDialog(setShowDialog: (Boolean)-> Unit, action:
 @Composable
 fun GreetingPreview() {
     ShoppingListTheme {
-        ShoppingListApp("Android")
+        ShoppingListApp()
     }
 }
